@@ -1,2 +1,5 @@
 # Clinica Web 
-Projeto Clinica realizado para avaliação na matéria de programação web do curso de Sistemas de Informação da PUC Campinas
+Projeto Clinica realizado para avaliaÃ§Ã£o na matÃ©ria de programaÃ§Ã£o web do curso de Sistemas de InformaÃ§Ã£o da PUC Campinas
+
+Mateus Sauer GovÃªa
+Wagner JosÃ© Luz

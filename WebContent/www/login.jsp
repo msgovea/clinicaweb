@@ -5,12 +5,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<script>
-function clicke() {
-	document.getElementById("Titulo").innerHTML = "Voce clicou no botao!";
-	alert("oi");
-}
-</script>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="description"
@@ -52,11 +46,24 @@ function clicke() {
 	margin-bottom: 40px;
 	z-index: 900;
 }
+.demo-card-wide.mdl-card {
+	width: 912px;
+}
+
+.demo-card-wide>.mdl-card__title {
+	color: #fff;
+	height: 176px;
+	background: url('http://www.getmdl.io/assets/demos/welcome_card.jpg')
+		center/cover;
+}
+
+.demo-card-wide>.mdl-card__menu {
+	color: #fff;
+}
 </style>
 </head>
 <body>
 
-	<script>clicke()</script>
 	<%
 		Connection connection = null;
 		Statement statement = null;
@@ -65,39 +72,38 @@ function clicke() {
 		String nome = request.getParameter("usuario");
 		String senha = request.getParameter("senha");
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
-		connection = ConexaoMySQL.getConexaoMySQL();
-		//connection = DriverManager.getConnection(connectionURL, User, Pass);
+		try {
+			connection = ConexaoMySQL.getConexaoMySQL();
+			//connection = DriverManager.getConnection(connectionURL, User, Pass);
 
-		//String query = "SELECT * FROM acesso WHERE Login = nome";
-		statement = connection.createStatement();
+			//String query = "SELECT * FROM acesso WHERE Login = nome";
+			statement = connection.createStatement();
 
-		String query = "SELECT * FROM acesso WHERE Login = '" + nome + "'";
+			String query = "SELECT * FROM acesso WHERE Login = '" + nome + "'";
 
-		rs = statement.executeQuery(query);
-		if (!(nome == null && senha == null)) {
-			try {
+			rs = statement.executeQuery(query);
+			if (!(nome == null && senha == null)) {
+				try {
 
-				rs.next();
-				if (nome.equals(rs.getString("Login")) && senha.equals(rs.getString("Senha"))) {
-					out.println("Você Logou, parabéns MISERAVI!");
-				} else {
-					out.println("Você NÃÃÃÃO Logou, QUEM TINSINO MISERAVI !! ? ? ! ");
+					rs.next();
+					if (nome.equals(rs.getString("Login")) && senha.equals(rs.getString("Senha"))) {
+						out.println("Você Logou, parabéns MISERAVI!");
+					} else {
+						out.println("Você NÃÃÃÃO Logou, QUEM TINSINO MISERAVI !! ? ? ! ");
+					}
+				} catch (SQLException e) {
+					out.print("QUEM TINSINO MISERAVI");
 				}
-			} catch (SQLException e) {
-				out.print("QUEM TINSINO MISERAVI");
 			}
-		}
 
-		rs.close();
+			rs.close();
+		} catch (Exception e) {
+			out.print("ERRO SQL");
+		}
 	%>
 
-
-
-
-	<div
-		class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-		<header
-			class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
+	<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
+		<header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
 		<div class="mdl-layout__header-row">
 			<span class="mdl-layout-title" id="titulo">Home</span>
 			<div class="mdl-layout-spacer"></div>
@@ -125,88 +131,26 @@ function clicke() {
 			</ul>
 		</div>
 		</header>
-		<div
-			class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
-			<header class="demo-drawer-header"> <img
-				src="images/user.jpg" class="demo-avatar">
-			<div class="demo-avatar-dropdown">
-				<span>gôvea@example.com</span>
-				<div class="mdl-layout-spacer"></div>
-				<button id="accbtn"
-					class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-					<i class="material-icons" role="presentation">arrow_drop_down</i> <span
-						class="visuallyhidden">Accounts</span>
-				</button>
-				<ul
-					class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
-					for="accbtn">
-					<li class="mdl-menu__item">hello@example.com</li>
-					<li class="mdl-menu__item">info@example.com</li>
-					<li class="mdl-menu__item"><i class="material-icons">add</i>Add
-						another account...</li>
-				</ul>
-			</div>
-			</header>
-			<nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-			<a class="mdl-navigation__link" href=""><i
-				class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">home</i>Home</a> <a class="mdl-navigation__link"
-				href=""><i class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">inbox</i>Inbox</a> <a class="mdl-navigation__link"
-				href=""><i class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">forum</i>Forums</a> <a class="mdl-navigation__link"
-				href=""><i class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">flag</i>Updates</a> <a class="mdl-navigation__link"
-				href=""><i class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">local_offer</i>Promos</a> <a
-				class="mdl-navigation__link" href=""><i
-				class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">shopping_cart</i>Purchases</a> <a
-				class="mdl-navigation__link" href=""><i
-				class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">people</i>Social</a>
-			<div class="mdl-layout-spacer"></div>
-			<a class="mdl-navigation__link" href=""><i
-				class="mdl-color-text--blue-grey-400 material-icons"
-				role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
-			</nav>
-		</div>
 		<main class="mdl-layout__content mdl-color--grey-100">
 		<div class="mdl-grid demo-content">
 			<!--  conteudo 0 inicio -->
-			<style>
-.demo-card-wide.mdl-card {
-	width: 912px;
-}
-
-.demo-card-wide>.mdl-card__title {
-	color: #fff;
-	height: 176px;
-	background: url('http://www.getmdl.io/assets/demos/welcome_card.jpg')
-		center/cover;
-}
-
-.demo-card-wide>.mdl-card__menu {
-	color: #fff;
-}
-</style>
+			
 
 			<div
-				class="demo-card-wide demo-charts mdl-color--white  mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+				class="demo-card-wide demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col">
 
 				<div class="mdl-card__title">
 					<h2 class="mdl-card__title-text">Bem vindo !!</h2>
 				</div>
 				<div class="mdl-card__supporting-text">
-					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
-					sagittis pellentesque lacus eleifend lacinia...
+					Seja bem vindo ao HearthCare	
 					<form method="post" action="#">
 						<div
 							class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-							<input class="mdl-textfield__input" type="text"
-								pattern=".{1,}" id="sample4" name="usuario">
-							<label class="mdl-textfield__label" for="sample4">Login...</label>
-							<span class="mdl-textfield__error">Input is not a number!</span>
+							<input class="mdl-textfield__input" type="text" pattern=".{1,}"
+								id="sample4" name="usuario"> <label
+								class="mdl-textfield__label" for="sample4">Login...</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>
 						</div>
 						<br>
 						<div
@@ -217,16 +161,14 @@ function clicke() {
 							<label class="mdl-textfield__label" for="sample4">Senha...</label>
 							<span class="mdl-textfield__error">Seis ou mais digitos!</span>
 						</div>
-						<input class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="click()" type=submit value="Submit" />
-					</form>
-					
 				</div>
-				
+
 				<div class="mdl-card__actions mdl-card--border">
-					<a
-						class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-						Get Started </a>
+					<input
+						class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+						type=submit value="Get Started" />
 				</div>
+				</form>
 				<div class="mdl-card__menu">
 					<button
 						class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
@@ -235,31 +177,7 @@ function clicke() {
 				</div>
 			</div>
 			<!--  conteudo 0 fim -->
-			<div
-				class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-				<!-- conteudo 1 inicio -->
-				<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-
-					<div class="mdl-card__title">
-						<h2 class="mdl-card__title-text">Welcome</h2>
-					</div>
-					<div class="mdl-card__supporting-text">Lorem ipsum dolor sit
-						amet, consectetur adipiscing elit. Mauris sagittis pellentesque
-						lacus eleifend lacinia...</div>
-					<div class="mdl-card__actions mdl-card--border">
-						<a
-							class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-							Get Started </a>
-					</div>
-					<div class="mdl-card__menu">
-						<button
-							class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
-							<i class="material-icons">share</i>
-						</button>
-					</div>
-				</div>
-				<!-- conteudo 1 fim -->
-			</div>
+			
 			<div
 				class="demo-graphs mdl-shadow--2dp mdl-color--white mdl-cell mdl-cell--8-col">
 				oiii
@@ -331,7 +249,9 @@ function clicke() {
 
 
 
-<script>click() </script>
+	<script>
+		click()
+	</script>
 
 
 

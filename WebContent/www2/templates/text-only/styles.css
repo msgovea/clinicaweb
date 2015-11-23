@@ -24,6 +24,14 @@ html, body {
 	padding-left: 60px;	
 }
 
+.demo-avatar {
+	padding-left: 8px;
+	align: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 32px;
+}
+
 .mdl-demo .mdl-layout__header-row {
   padding-left: 40px;
 }
@@ -218,7 +226,7 @@ html, body {
 .mdl-demo .mdl-card .mdl-card__supporting-text > h3:first-child {
   margin-bottom: 24px;
 }
-.mdl-demo .mdl-layout__tab-panel:not(#overview):not(#logar) {
+.mdl-demo .mdl-layout__tab-panel:not(#default):not(#logar):not(#cadastro):not(#recsenha) {
   background-color: white;
 }
 .mdl-demo #features section {

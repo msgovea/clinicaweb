@@ -1,7 +1,12 @@
+<%@page import="javafx.scene.control.Alert"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
 <%@ page import="java.sql.*"%>
 <%@page import="bd.ConexaoMySQL"%>
+<%@page import ="conexao.Conexao"%>
+<%@page import ="logicalView.Usuario"%>
+<%@page import ="model.UsuarioDAO"%>
+<%@page import ="java.util.*"%>
 
 <!doctype html>
 
@@ -34,7 +39,108 @@
     <link rel="stylesheet" href="material.min.css">
     <link rel="stylesheet" href="styles.css">
 
+	
+
   </head>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="http://digitalbush.com/wp-content/uploads/2014/10/jquery.maskedinput.js"></script>
+	<script>
+	jQuery("#sample8")
+       .mask("(99) 9999-9999?9")
+       .focusout(function (event) {  
+           var target, phone, element;  
+           target = (event.currentTarget) ? event.currentTarget : event.srcElement;  
+           phone = target.value.replace(/\D/g, '');
+           element = $(target);  
+           element.unmask();  
+           if(phone.length > 10) {  
+               element.mask("(99) 99999-999?9");  
+           } else {  
+               element.mask("(99) 9999-9999?9");  
+           }  
+       });
+	
+	function zera() {
+	    if (document.getElementById("sample8").value == "(00) 0000-00000" || 
+	    		document.getElementById("sample8").value == "(00) 00000-0000")
+	    	document.getElementById("sample8").value = "";
+	}
+	
+	function zeraCPF() {
+	    if (document.getElementById("cpf").value == "000.000.000-00")
+	    	document.getElementById("cpf").value = "";
+	}
+	
+	function zeraRG() {
+	    if (document.getElementById("rg").value == "00.000.000-0")
+	    	document.getElementById("rg").value = "";
+	}
+	
+	function zeraCEP() {
+	    if (document.getElementById("cep").value == "00000-000")
+	    	document.getElementById("cep").value = "";
+	}
+	
+	$("#cpf").mask("999.999.999-99");
+	$("#rg").mask("**.***.***-*");
+	$("#cep").mask("99999-999");
+	</script>
+  
+  
+ 	<%
+ 	//JSP CODE
+ 	Calendar cal = Calendar.getInstance();
+ 	Boolean valido = true;
+ 	String validoRec[] = new String[3];
+ 	String botao = "default";
+    if (request.getParameter("botao") != null){
+    	botao = request.getParameter("botao");
+   	}
+    
+    Usuario usr = new Usuario(); 
+    UsuarioDAO usrDAO = new UsuarioDAO();
+    
+    
+	//RECSENHA
+	String email = request.getParameter("emailRec");
+	String recsenha = request.getParameter("recsenha");
+	
+	if (email != null && recsenha != null){
+		if (!email.equalsIgnoreCase("mateus.sauer@gmail.com")) {
+            validoRec[0] = "email";
+        } else if (!recsenha.equalsIgnoreCase("123456")) {
+            validoRec[0] = "recchave";
+        } else {
+        	validoRec[0] = "valido";
+        	validoRec[1] = "login";
+        	validoRec[2] = "senha";
+        }
+	}
+    
+    
+    
+    
+    //LOGIN
+    String login = request.getParameter("login");
+    String password = request.getParameter("senha");
+    
+    if (login != null && password != null){
+    	%><script>alert("<% out.print(login + password); %>")</script><%
+        session.setAttribute("login", login);
+        session.setAttribute("senha", password);
+        if (!usrDAO.validaLoginAcesso(login)) {
+            valido = false;
+        } else if (!usrDAO.validaSenhaAcesso(login, password)) {
+            valido = false;
+        } else {
+        	usr.setLogin(login);
+        	usr.setSenha(password);
+            response.sendRedirect("index.jsp");
+        }
+    }
+ 	%>
+  
   <body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
     <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
       <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
@@ -46,14 +152,15 @@
         <div class="mdl-layout--large-screen-only mdl-layout__header-row">
         </div>
         <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
-          <a href="#overview" class="mdl-layout__tab is-active">Principal</a>
-          <a href="#logar" 	class="mdl-layout__tab">Logar</a>
-          <a href="#overview2" class="mdl-layout__tab">Cadastro</a>
-          <a href="#features" class="mdl-layout__tab">Recuperar Senha</a>
+          <a href="#default" 	class="mdl-layout__tab <% if(botao.equals("default")) 	out.print("is-active");%>">Principal</a>
+          <a href="#logar" 		class="mdl-layout__tab <% if(botao.equals("logar"))   	out.print("is-active");%>">Logar	</a>
+          <a href="#cadastro" 	class="mdl-layout__tab <% if(botao.equals("cadastro"))	out.print("is-active");%>">Cadastro	</a>
+          <a href="#recsenha" 	class="mdl-layout__tab <% if(botao.equals("recsenha"))	out.print("is-active");%>">Recuperar Senha</a>
         </div>
       </header>
+      
       <main class="mdl-layout__content">
-        <div class="mdl-layout__tab-panel is-active" id="overview">
+        <div class="mdl-layout__tab-panel <%if (botao.equals("default"))out.print("is-active");%>" id="default">
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
               <i class="material-icons">play_circle_filled</i>
@@ -67,14 +174,6 @@
                 <a href="#" class="mdl-button">Read our features</a>
               </div>
             </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn1b">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn1b">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
           </section>
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <div class="mdl-card mdl-cell mdl-cell--12-col">
@@ -106,14 +205,6 @@
                 <a href="#" class="mdl-button">Read our features</a>
               </div>
             </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn2b">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn2b">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
           </section>
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <div class="mdl-card mdl-cell mdl-cell--12-col">
@@ -122,261 +213,267 @@
                 Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Nostrud in laboris labore nisi amet do dolor eu fugiat consectetur elit cillum esse. Pariatur occaecat nisi laboris tempor laboris eiusmod qui id Lorem esse commodo in. Exercitation aute dolore deserunt culpa consequat elit labore incididunt elit anim.
               </div>
               <div class="mdl-card__actions">
-                <a href="#" class="mdl-button">Read our features</a>
+                <a href="#logar" class="mdl-button">Read our features</a>
               </div>
             </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn3">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn3">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
           </section>
           <section class="section--footer mdl-color--white mdl-grid">
             <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-              <div class="section__circle-container__circle mdl-color--accent section__circle--big"></div>
+              <img src="images/user.jpg" class="demo-avatar">
             </div>
-            <div class="section__text mdl-cell mdl-cell--4-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-              <h5>Lorem ipsum dolor sit amet</h5>
+            <div class="section__text mdl-cell mdl-cell--2-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
+              <h5>Mateus Sauer Govêa</h5>
               Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
             </div>
             <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-              <div class="section__circle-container__circle mdl-color--accent section__circle--big"></div>
+              <img src="images/user.jpg" class="demo-avatar">
             </div>
-            <div class="section__text mdl-cell mdl-cell--4-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-              <h5>Lorem ipsum dolor sit amet</h5>
+            <div class="section__text mdl-cell mdl-cell--2-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
+              <h5>Wagner José Luz</h5>
               Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
             </div>
           </section>
         </div>
         
         
-        <div class="mdl-layout__tab-panel" id="logar">
+        <div class="mdl-layout__tab-panel <%if (botao.equals("logar"))out.print("is-active");%>" id="logar">
+        
+        <% if (!valido) {%>
+          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            <div class="mdl-card mdl-cell mdl-cell--12-col">
+              <div class="mdl-card__supporting-text">
+                <h4><font color="red">Usuário ou senha inválido</font></h4>
+                Por favor entre novamente, usuário ou senha inválido<br> Caso não lembre seus dados você pode tentar recuperar sua senha.
+              </div>
+            </div>
+          </section>
+          <% } %>
+          
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
               <i class="material-icons">play_circle_filled</i>
             </header>
             <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
               <div class="mdl-card__supporting-text">
-                <h4>HealthCare -- Logue para acessar o sistema</h4>
-                <form method="post" action="#">
+                <h4>-- HealthCare --</h4>
+                <form method="post">
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 							<input class="mdl-textfield__input" type="text" pattern=".{1,}"
-								id="sample4" name="usuario"> <label
+								id="sample4" name="login"> <label
 								class="mdl-textfield__label" for="sample4">Usuário</label> <span
 								class="mdl-textfield__error">Input is not a number!</span>
 						</div>
 						<br>
-						<div
-							class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-							<input class="mdl-textfield__input" type="password"
-								pattern=".{6,}" id="sample4" name="senha">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="password" pattern=".{5,}" id="sample5" name="senha">
 							<!--  pattern de -numero a +numero -?[0-9]*(\.[0-9]+)? -->
-							<label class="mdl-textfield__label" for="sample4">Senha</label>
+							<label class="mdl-textfield__label" for="sample5">Senha</label>
 							<span class="mdl-textfield__error">Seis ou mais digitos!</span>
 						</div>
 				
                 </div>
               <div class="mdl-card__actions">
               <input class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
-						type=submit value="Logar" />
+						type=submit name="botao" value="logar" />
               </div>
               </form>
             </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn1">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn1">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
           </section>
-          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
-            <div class="mdl-card mdl-cell mdl-cell--12-col">
-              <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
-                <h4 class="mdl-cell mdl-cell--12-col">Details</h4>
-                <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-                  <div class="section__circle-container__circle mdl-color--primary"></div>
-                </div>
-                <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-                  <h5>Lorem ipsum dolor sit amet</h5>
-                  Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis <a href="#">proident minim</a>.
-                </div>
-                <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-                  <div class="section__circle-container__circle mdl-color--primary"></div>
-                </div>
-                <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-                  <h5>Lorem ipsum dolor sit amet</h5>
-                  Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis <a href="#">proident minim</a>.
-                </div>
-                <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-                  <div class="section__circle-container__circle mdl-color--primary"></div>
-                </div>
-                <div class="section__text mdl-cell mdl-cell--10-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-                  <h5>Lorem ipsum dolor sit amet</h5>
-                  Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Duis nulla tempor do aute et eiusmod velit exercitation nostrud quis <a href="#">proident minim</a>.
-                </div>
-              </div>
-              <div class="mdl-card__actions">
-                <a href="#" class="mdl-button">Read our features</a>
-              </div>
-            </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn2">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn2">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
-          </section>
+         <section></section>
+        </div>
+        
+        
+        
+        
+        <div class="mdl-layout__tab-panel <%if (botao.equals("cadastro"))out.print("is-active");%>" id="cadastro">
+        
+        <% if (!valido) {%>
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <div class="mdl-card mdl-cell mdl-cell--12-col">
               <div class="mdl-card__supporting-text">
-                <h4>Technology</h4>
-                Dolore ex deserunt aute fugiat aute nulla ea sunt aliqua nisi cupidatat eu. Nostrud in laboris labore nisi amet do dolor eu fugiat consectetur elit cillum esse. Pariatur occaecat nisi laboris tempor laboris eiusmod qui id Lorem esse commodo in. Exercitation aute dolore deserunt culpa consequat elit labore incididunt elit anim.
+                <h4><font color="red">Usuário ou senha inválido</font></h4>
+                Por favor entre novamente, usuário ou senha inválido<br> Caso não lembre seus dados você pode tentar recuperar sua senha.
               </div>
+            </div>
+          </section>
+          <% } %>
+          
+          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            
+            <div class="mdl-card mdl-cell mdl-cell--12-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+              <div class="mdl-card__supporting-text">
+                <h4>Cadastro</h4>
+                <form method="post">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" pattern=".{3,}"
+								id="sample4" name="login"> <label
+								class="mdl-textfield__label" for="sample4">Nome completo</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>	
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="email" id="sample4" name="email"> 
+							<label class="mdl-textfield__label" for="sample4">E-mail</label> 
+							<span class="mdl-textfield__error">Digite um e-mail válido</span>	
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" pattern=".{1,}" value="00.000.000-0" onclick="zeraRG()" id="rg" name="login"> 
+							<label class="mdl-textfield__label" for="rg">RG</label> 
+							<span class="mdl-textfield__error">Input is not a number!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" onclick="zeraCEP()" value="00000-000" pattern=".{1,}"
+								id="cep" name="login"> <label
+								class="mdl-textfield__label" for="cep">CEP</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="date"  
+									min="1900-01-01" 
+									max="<%out.print(cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH)+1) + "-" + cal.get(Calendar.DAY_OF_MONTH)); %>" 
+									value="<%out.print(cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH)+1) + "-" + cal.get(Calendar.DAY_OF_MONTH)); %>" 
+									pattern=".{1,}" id="sample5" name="login">
+							<label class="mdl-textfield__label" for="sample5">Data de Nascimento</label>
+							<span class="mdl-textfield__error">Digite um valor entre 01-01-1900 à <%out.print(cal.get(Calendar.DAY_OF_MONTH) + "-" + (cal.get(Calendar.MONTH)+1) + "- " + cal.get(Calendar.YEAR)); %></span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" id="cpf" name="login" onclick="zeraCPF()" value="000.000.000-00"> 
+							<label
+								class="mdl-textfield__label" for="cpf">CPF</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" pattern=".{1,}"
+								id="sample4" name="login"> <label
+								class="mdl-textfield__label" for="sample4">Endereço</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="text" pattern=".{1,}"
+								id="sample4" name="login"> <label
+								class="mdl-textfield__label" for="sample4">Numero</label> <span
+								class="mdl-textfield__error">Input is not a number!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="tel" pattern=".{14,15}" id="sample8" onclick="zera()" value="(00) 0000-00000" name="telefone">
+							<!--  pattern de -numero a +numero -?[0-9]*(\.[0-9]+)? -->
+							<label class="mdl-textfield__label" for="sample8">Telefone</label>
+							<span class="mdl-textfield__error">Seis ou mais digitos!</span>
+						</div>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="tel" pattern=".{6,}" id="sample9"  name="recsenha">
+							<!--  pattern de -numero a +numero -?[0-9]*(\.[0-9]+)? -->
+							<label class="mdl-textfield__label" for="sample9">Chave de Recuperação de Senha</label>
+							<span class="mdl-textfield__error">Seis ou mais digitos!</span>
+						</div>
+						
+						
+						<script>
+							jQuery("#sample8")
+						       .mask("(99) 9999-9999?9")
+						       .focusout(function (event) {  
+						           var target, phone, element;  
+						           target = (event.currentTarget) ? event.currentTarget : event.srcElement;  
+						           phone = target.value.replace(/\D/g, '');
+						           element = $(target);  
+						           element.unmask();  
+						           if(phone.length > 10) {  
+						               element.mask("(99) 99999-999?9");  
+						           } else {  
+						               element.mask("(99) 9999-9999?9");  
+						           }  
+						       });
+							
+							$("#cpf").mask("999.999.999-99");
+							$("#rg").mask("**.***.***-*");
+							$("#cep").mask("99999-999");
+						</script>
+				
+                </div>
               <div class="mdl-card__actions">
-                <a href="#" class="mdl-button">Read our features</a>
+              <input class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+						type=submit name="botao" value="cadastro" />
+              </div>
+              </form>
+            </div>
+          </section>
+         <section></section>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        <div class="mdl-layout__tab-panel <%if (botao.equals("recsenha"))out.print("is-active");%>" id="recsenha">
+        
+        <% if (validoRec[0] != null) {%>
+          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            <div class="mdl-card mdl-cell mdl-cell--12-col">
+              <div class="mdl-card__supporting-text">
+                <% 
+                switch(validoRec[0]) {
+                	case "email" :
+                		out.print("<h4><font color=\"red\">E-mail Inválido</font></h4> Por favor entre com os dados novamente, e-mail inválido");
+                		break;
+                	case "recchave" :
+                		out.print("<h4><font color=\"red\">Chave de Recuperação Inválida</font></h4> Por favor entre com os dados novamente, chave de recuperação inválida");
+                		break;
+                	case "valido" :
+                		out.print("<center><h4><font color=\"green\">Dados recuperados!</font></h4> <h5>Usuário: " + validoRec[1] + "<br>Senha: " + validoRec[2]+"</center></h5>");
+                		break;
+                	default: 
+                		out.print("<h4><font color=\"yellow\">ERRO</font></h4> Tente novamente, caso não consiga contate o administrador do Sistema");
+                		break;
+                }
+                %>
+
               </div>
             </div>
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn3">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn3">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
           </section>
-          <section class="section--footer mdl-color--white mdl-grid">
-            <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-              <div class="section__circle-container__circle mdl-color--accent section__circle--big"></div>
-            </div>
-            <div class="section__text mdl-cell mdl-cell--4-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-              <h5>Lorem ipsum dolor sit amet</h5>
-              Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
-            </div>
-            <div class="section__circle-container mdl-cell mdl-cell--2-col mdl-cell--1-col-phone">
-              <div class="section__circle-container__circle mdl-color--accent section__circle--big"></div>
-            </div>
-            <div class="section__text mdl-cell mdl-cell--4-col-desktop mdl-cell--6-col-tablet mdl-cell--3-col-phone">
-              <h5>Lorem ipsum dolor sit amet</h5>
-              Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
+          <% } %>
+          
+          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            
+            <div class="mdl-card mdl-cell mdl-cell--12-col-desktop mdl-cell--8-col-tablet mdl-cell--4-col-phone">
+              <div class="mdl-card__supporting-text">
+                <h4>Recupere sua Senha</h4>
+                <form method="post">
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="email" id="emailRec" pattern=".{5,}" name="emailRec"> 
+							<label class="mdl-textfield__label" for="emailRec">E-mail</label> 
+							<span class="mdl-textfield__error">Digite seu e-mail usado no cadastro</span>	
+						</div><br>
+						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+							<input class="mdl-textfield__input" type="tel" pattern=".{6,}" id="recsenha" name="recsenha">
+							<label class="mdl-textfield__label" for="recsenha">Chave de Recuperação de Senha</label>
+							<span class="mdl-textfield__error">Seis ou mais digitos!</span>
+						</div>
+
+				
+                </div>
+              <div class="mdl-card__actions">
+              <input class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"
+						type=submit name="botao" value="recsenha" />
+              </div>
+              </form>
             </div>
           </section>
+         <section></section>
         </div>
+
         
+        <!-- INICIO RODAPE -->
         
-        
-        <div class="mdl-layout__tab-panel" id="features">
-          <section class="section--center mdl-grid mdl-grid--no-spacing">
-            <div class="mdl-cell mdl-cell--12-col">
-              <h4>Features</h4>
-              Minim duis incididunt est cillum est ex occaecat consectetur. Qui sint ut et qui nisi cupidatat. Reprehenderit nostrud proident officia exercitation anim et pariatur ex.
-              <ul class="toc">
-                <h4>Contents</h4>
-                <a href="#lorem1">Lorem ipsum</a>
-                <a href="#lorem2">Lorem ipsum</a>
-                <a href="#lorem3">Lorem ipsum</a>
-                <a href="#lorem4">Lorem ipsum</a>
-                <a href="#lorem5">Lorem ipsum</a>
-              </ul>
-
-              <h5 id="lorem1">Lorem ipsum dolor sit amet</h5>
-              Excepteur et pariatur officia veniam anim culpa cupidatat consequat ad velit culpa est non.
-              <ul>
-                <li>Nisi qui nisi duis commodo duis reprehenderit consequat velit aliquip.</li>
-                <li>Dolor consectetur incididunt in ipsum laborum non et irure pariatur excepteur anim occaecat officia sint.</li>
-                <li>Lorem labore proident officia excepteur do.</li>
-              </ul>
-
-              <p>
-                Sit qui est voluptate proident minim cillum in aliquip cupidatat labore pariatur id tempor id. Proident occaecat occaecat sint mollit tempor duis dolor cillum anim. Dolore sunt ea mollit fugiat in aliqua consequat nostrud aliqua ut irure in dolore. Proident aliqua culpa sint sint exercitation. Non proident occaecat reprehenderit veniam et proident dolor id culpa ea tempor do dolor. Nulla adipisicing qui fugiat id dolor. Nostrud magna voluptate irure veniam veniam labore ipsum deserunt adipisicing laboris amet eu irure. Sunt dolore nisi velit sit id. Nostrud voluptate labore proident cupidatat enim amet Lorem officia magna excepteur occaecat eu qui. Exercitation culpa deserunt non et tempor et non.
-              </p>
-              <p>
-                Do dolor eiusmod eu mollit dolore nostrud deserunt cillum irure esse sint irure fugiat exercitation. Magna sit voluptate id in tempor elit veniam enim cupidatat ea labore elit. Aliqua pariatur eu nulla labore magna dolore mollit occaecat sint commodo culpa. Eu non minim duis pariatur Lorem quis exercitation. Sunt qui ex incididunt sit anim incididunt sit elit ad officia id.
-              </p>
-              <p id="lorem2">
-                Tempor voluptate ex consequat fugiat aliqua. Do sit et reprehenderit culpa deserunt culpa. Excepteur quis minim mollit irure nulla excepteur enim quis in laborum. Aliqua elit voluptate ad deserunt nulla reprehenderit adipisicing sint. Est in eiusmod exercitation esse commodo. Ea reprehenderit exercitation veniam adipisicing minim nostrud. Veniam dolore ex ea occaecat non enim minim id ut aliqua adipisicing ad. Occaecat excepteur aliqua tempor cupidatat aute dolore deserunt ipsum qui incididunt aliqua occaecat sit quis. Culpa sint aliqua aliqua reprehenderit veniam irure fugiat ea ad.
-              </p>
-              <p>
-                Eu minim fugiat laborum irure veniam Lorem aliqua enim. Aliqua veniam incididunt consequat irure consequat tempor do nisi deserunt. Elit dolore ad quis consectetur sint laborum anim magna do nostrud amet. Ea nulla sit consequat quis qui irure dolor. Sint deserunt excepteur consectetur magna irure. Dolor tempor exercitation dolore pariatur incididunt ut laboris fugiat ipsum sunt veniam aute sunt labore. Non dolore sit nostrud eu ad excepteur cillum eu ex Lorem duis.
-              </p>
-              <p>
-                Id occaecat velit non ipsum occaecat aliqua quis ut. Eiusmod est magna non esse est ex incididunt aute ullamco. Cillum excepteur sint ipsum qui quis velit incididunt amet. Qui deserunt anim enim laborum cillum reprehenderit duis mollit amet ad officia enim. Minim sint et quis aliqua aliqua do minim officia dolor deserunt ipsum laboris. Nulla nisi voluptate consectetur est voluptate et amet. Occaecat ut quis adipisicing ad enim. Magna est magna sit duis proident veniam reprehenderit fugiat reprehenderit enim velit ex. Ullamco laboris culpa irure aliquip ad Lorem consequat veniam ad ipsum eu. Ipsum culpa dolore sunt officia laborum quis.
-              </p>
-
-              <h5 id="lorem3">Lorem ipsum dolor sit amet</h5>
-
-              <p id="lorem4">
-                Eiusmod nulla aliquip ipsum reprehenderit nostrud non excepteur mollit amet esse est est dolor. Dolore quis pariatur sit consectetur veniam esse ullamco duis Lorem qui enim ut veniam. Officia deserunt minim duis laborum dolor in velit pariatur commodo ullamco eu. Aute adipisicing ad duis labore laboris do mollit dolor cillum sunt aliqua ullamco. Esse tempor quis cillum consequat reprehenderit. Adipisicing proident anim eu sint elit aliqua anim dolore cupidatat fugiat aliquip qui.
-              </p>
-              <p id="lorem5">
-                Nisi eiusmod esse cupidatat excepteur exercitation ipsum reprehenderit nostrud deserunt aliqua ullamco. Anim est irure commodo eiusmod pariatur officia. Est dolor ipsum excepteur magna aliqua ad veniam irure qui occaecat eiusmod aute fugiat commodo. Quis mollit incididunt amet sit minim velit eu fugiat voluptate excepteur. Sit minim id pariatur ex cupidatat cupidatat nostrud nostrud ipsum.
-              </p>
-              <p>
-                Enim ea officia excepteur ad veniam id reprehenderit eiusmod esse mollit consequat. Esse non aute ullamco Lorem aliqua qui dolore irure eiusmod aute aliqua proident labore aliqua. Ipsum voluptate voluptate exercitation laborum deserunt nulla elit aliquip et minim ex veniam. Duis cupidatat aute sunt officia mollit dolor ad elit ad aute labore nostrud duis pariatur. In est sint voluptate consectetur velit ea non labore. Ut duis ea aliqua consequat nulla laboris fugiat aute id culpa proident. Minim eiusmod laboris enim Lorem nisi excepteur mollit voluptate enim labore reprehenderit officia mollit.
-              </p>
-              <p>
-                Cupidatat labore nisi ut sunt voluptate quis sunt qui ad Lorem esse nisi. Ex esse velit ullamco incididunt occaecat dolore veniam tempor minim adipisicing amet. Consequat in exercitation est elit anim consequat cillum sint labore cillum. Aliquip mollit laboris ad labore anim.
-              </p>
-            </div>
-          </section>
-        </div>
         <footer class="mdl-mega-footer">
-          <div class="mdl-mega-footer--middle-section">
-            <div class="mdl-mega-footer--drop-down-section">
-              <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
-              <h1 class="mdl-mega-footer--heading">Features</h1>
-              <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">About</a></li>
-                <li><a href="#">Terms</a></li>
-                <li><a href="#">Partners</a></li>
-                <li><a href="#">Updates</a></li>
-              </ul>
-            </div>
-            <div class="mdl-mega-footer--drop-down-section">
-              <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
-              <h1 class="mdl-mega-footer--heading">Details</h1>
-              <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">Spec</a></li>
-                <li><a href="#">Tools</a></li>
-                <li><a href="#">Resources</a></li>
-              </ul>
-            </div>
-            <div class="mdl-mega-footer--drop-down-section">
-              <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
-              <h1 class="mdl-mega-footer--heading">Technology</h1>
-              <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">How it works</a></li>
-                <li><a href="#">Patterns</a></li>
-                <li><a href="#">Usage</a></li>
-                <li><a href="#">Products</a></li>
-                <li><a href="#">Contracts</a></li>
-              </ul>
-            </div>
-            <div class="mdl-mega-footer--drop-down-section">
-              <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
-              <h1 class="mdl-mega-footer--heading">FAQ</h1>
-              <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">Questions</a></li>
-                <li><a href="#">Answers</a></li>
-                <li><a href="#">Contact us</a></li>
-              </ul>
-            </div>
-          </div>
           <div class="mdl-mega-footer--bottom-section">
             <div class="mdl-logo">
-              More Information
+              HealthCare 2015 © Desenvolvido por Mateus Sauer Govêa e Wagner José da Luz
             </div>
             <ul class="mdl-mega-footer--link-list">
-              <li><a href="#">Web Starter Kit</a></li>
-              <li><a href="#">Help</a></li>
-              <li><a href="#">Privacy and Terms</a></li>
+              <li><a href="#">HealthCare</a></li>
+              <li><a href="#">PUC-Campinas</a></li>
+              <li><a href="#">Privacidade e Termos de Uso</a></li>
             </ul>
           </div>
         </footer>

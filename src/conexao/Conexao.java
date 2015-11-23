@@ -10,9 +10,9 @@ public class Conexao {
         try{
             Class.forName("com.mysql.jdbc.Driver").newInstance(); // Descobrindo o driver
                     
-            String conectionURL = "jdbc:mysql://ESPARTA/bdci01"; //caminho do banco de  dados
-            String user = "bdci01";//usuario de conexao
-            String pass = "so12s1a";//senha de conexao
+            String conectionURL = "jdbc:mysql://ESPARTA/bdci27"; //caminho do banco de  dados
+            String user = "bdci27";//usuario de conexao
+            String pass = "xg45d41";//senha de conexao
         
             return DriverManager.getConnection(conectionURL, user, pass); // conectando ao banco de  dados
         }
